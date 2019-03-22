@@ -1,5 +1,17 @@
 pipeline {
   agent any
+
+   parameters {
+    string(name: 'BRANCH', description: 'The branch to build')
+/*    text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+    booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+    choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+    password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    file(name: "FILE", description: "Choose a file to upload") */
+  }
+
+  // calculate FLOW_BRANCH from BRANCH
+
   stages {
     stage('Initializing') {
       steps {
@@ -11,8 +23,13 @@ pipeline {
     }
     stage('Branching') {
       steps {
-        // These are to be transformed into tests and run in parallel
+        // make this a call to the "create branch" job if the branch does not exist yet
+        // if it exists, ask if the pipeline should proceed!?
         input(message: 'Branch was created', ok: 'Yes')
+        //build(job: 'flow-create-branch', parameters: [string(name: 'BRANCH', value: FLOW_BRANCH)])
+        //build(job: 'neos-create-branch', parameters: [string(name: 'BRANCH', value: BRANCH), string(name: 'FLOW_BRANCH', value: FLOW_BRANCH)])
+
+        // These are to be transformed into tests and run in parallel
         input(message: 'Branch can be required as *-dev', ok: 'Yes')
         input(message: '.travis.yml was updated', ok: 'Yes')
         input(message: 'FLOW_VERSION_BRANCH was updated', ok: 'Yes')
@@ -38,6 +55,8 @@ pipeline {
       steps {
         input(message: 'Flow release was triggered', ok: 'Yes')
         input(message: 'Neos release was triggered', ok: 'Yes')
+        //build(job: 'flow-release', parameters: [string(name: 'VERSION', value: VERSION), string(name: 'PREVIOUS_VERSION', value: PREVIOUS_VERSION), string(name: 'BRANCH', value: FLOW_BRANCH)])
+        //build(job: 'neos-release', parameters: [string(name: 'VERSION', value: VERSION), string(name: 'PREVIOUS_VERSION', value: PREVIOUS_VERSION), string(name: 'BRANCH', value: FLOW_BRANCH), string(name: 'FLOW_BRANCH', value: FLOW_BRANCH)])
       }
     }
     stage('Smoke Testing') {
